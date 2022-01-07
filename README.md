@@ -1,26 +1,22 @@
 # lenna-plugin-template
-Lenna Plugin Template
+Lenna Yolo Plugin
+
+This plugin runs the yolo model to label objects in images.
 
 ## 🚴 Usage
 
-### 🐑 Use `cargo generate` to Clone this Template
+You can test the lib by detecting objects in two images.
 
-```
-cargo install cargo-generate
-```
-
-[Learn more about `cargo generate` here.](https://github.com/ashleygwilliams/cargo-generate)
-
-```
-cargo generate --git https://github.com/lenna-project/lenna-plugin-template.git --name my-plugin
-cd my-plugin
+```sh
+cargo run
 ```
 
-### 🛠️ Build with `wasm-pack build`
+The results are:
 
-```
-wasm-pack build
-```
+![dog](assets/dog_out.jpg)
+
+![person](assets/person_out.jpg)
+
 
 ### 🔬 Test in Headless Browsers with `wasm-pack test`
 

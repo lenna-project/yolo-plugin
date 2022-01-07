@@ -1,12 +1,13 @@
 use float_ord::FloatOrd;
 use image::{DynamicImage, GenericImageView, Rgba};
-use imageproc::drawing::draw_hollow_rect_mut;
+use imageproc::drawing::{draw_hollow_rect_mut, draw_text_mut};
 use imageproc::rect::Rect;
 use lenna_core::plugins::PluginRegistrar;
 use lenna_core::ProcessorConfig;
 use lenna_core::{core::processor::ExifProcessor, core::processor::ImageProcessor, Processor};
+use rusttype::{Font, Scale};
 use std::io::Cursor;
-use tract_ndarray::{ArrayBase, Axis, Dim, ViewRepr};
+use tract_ndarray::Axis;
 use tract_onnx::prelude::*;
 
 mod bbox;
@@ -118,7 +119,7 @@ impl ImageProcessor for Yolo {
         let result = result.index_axis(Axis(0), 0);
 
         let threshold = 1.01;
-        let white = Rgba([255u8, 255u8, 255u8, 255u8]);
+        let white = Rgba([0u8, 255u8, 0u8, 255u8]);
         let mut img = DynamicImage::ImageRgba8(image.to_rgba8());
         let (width, height) = img.dimensions();
         let num_classes = 20;
@@ -128,7 +129,7 @@ impl ImageProcessor for Yolo {
         for (cy, iy) in result.axis_iter(Axis(1)).enumerate() {
             for (cx, ix) in iy.axis_iter(Axis(1)).enumerate() {
                 let d = ix;
-                for b in 0..4 {
+                for b in 0..5 {
                     let channel = b * (num_classes + 5);
                     let tx = d[channel + 0];
                     let ty = d[channel + 1];
@@ -144,7 +145,7 @@ impl ImageProcessor for Yolo {
 
                     let tc = sigmoid(&tc);
                     let mut max_prob = (0, 0.0);
-                    for c in 0..(num_classes - 1) {
+                    for c in 0..(num_classes) {
                         let v = d[5 + c] * tc;
                         if v > max_prob.1 {
                             max_prob = (c, v);
@@ -168,15 +169,33 @@ impl ImageProcessor for Yolo {
         }
         let mut detections = nms_sort(detections);
 
+        let font = Vec::from(include_bytes!("../assets/DejaVuSans.ttf") as &[u8]);
+        let font = Font::try_from_vec(font).unwrap();
+
+        let font_height = 15.0;
+        let scale = Scale {
+            x: font_height * 2.0,
+            y: font_height,
+        };
+
         let mut classes: Vec<usize> = Vec::new();
         detections.iter_mut().for_each(|d| {
             let class = d.class;
             if !classes.contains(&class) {
                 let bbox = &mut d.bbox;
                 let label = Self::labels()[d.class].to_string();
-                // println!("{}: {} {:?}", label, d.confidence, bbox);
                 let rect = Self::scale(width, height, bbox);
                 draw_hollow_rect_mut(&mut img, rect, white);
+
+                draw_text_mut(
+                    &mut img,
+                    Rgba([0u8, 200u8, 0u8, 255u8]),
+                    rect.left() as u32,
+                    rect.top() as u32,
+                    scale,
+                    &font,
+                    &label,
+                );
                 classes.push(class);
             }
         });
@@ -252,7 +271,7 @@ mod tests {
     #[test]
     fn default() {
         let mut yolo = Yolo::default();
-        let mut c = yolo.default_config();
+        let c = yolo.default_config();
 
         let config = ProcessorConfig {
             id: "yolo-plugin".into(),
@@ -262,13 +281,13 @@ mod tests {
         let mut img =
             Box::new(lenna_core::io::read::read_from_file("assets/dog.jpg".into()).unwrap());
         yolo.process(config.clone(), &mut img).unwrap();
-        img.name = "test".to_string();
+        img.name = "dog_out".to_string();
         lenna_core::io::write::write_to_file(&img, image::ImageOutputFormat::Jpeg(80)).unwrap();
 
         let mut img =
             Box::new(lenna_core::io::read::read_from_file("assets/person.jpg".into()).unwrap());
         yolo.process(config, &mut img).unwrap();
-        img.name = "person_test".to_string();
+        img.name = "person_out".to_string();
         lenna_core::io::write::write_to_file(&img, image::ImageOutputFormat::Jpeg(80)).unwrap();
     }
 }
