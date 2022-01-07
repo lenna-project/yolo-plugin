@@ -16,6 +16,7 @@ python = ["lenna_core/python", "ndarray", "ndarray-image", "numpy", "pyo3", "pyt
 plugin = []
 
 [dependencies]
+float-ord = "0.3.2"
 image = { version = "0.23", default-features = false, features = [
     "png",
     "jpeg",

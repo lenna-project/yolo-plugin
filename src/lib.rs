@@ -1,3 +1,4 @@
+use float_ord::FloatOrd;
 use image::{DynamicImage, GenericImageView, Rgba};
 use imageproc::drawing::draw_hollow_rect_mut;
 use imageproc::rect::Rect;
@@ -8,6 +9,9 @@ use std::io::Cursor;
 use tract_ndarray::{ArrayBase, Axis, Dim, ViewRepr};
 use tract_onnx::prelude::*;
 
+mod bbox;
+use bbox::BBox;
+
 extern "C" fn register(registrar: &mut dyn PluginRegistrar) {
     registrar.add_plugin(Box::new(Yolo::default()));
 }
@@ -16,6 +20,28 @@ lenna_core::export_plugin!(register);
 
 fn sigmoid(a: &f32) -> f32 {
     1.0 / (1.0 + (-a).exp())
+}
+
+const NMS_THRESH: f64 = 0.45;
+
+pub fn nms_sort(mut dets: Vec<Detection>) -> Vec<Detection> {
+    let mut ans = Vec::new();
+    while !dets.is_empty() {
+        dets.sort_by_key(|d| FloatOrd(d.confidence));
+        ans.push(dets.pop().unwrap());
+        dets = dets
+            .into_iter()
+            .filter(|d| d.bbox.iou(&ans.last().unwrap().bbox) < NMS_THRESH)
+            .collect();
+    }
+    ans
+}
+
+#[derive(Clone)]
+pub struct Detection {
+    pub bbox: BBox,
+    pub class: usize,
+    pub confidence: f32,
 }
 
 type ModelType = SimplePlan<TypedFact, Box<dyn TypedOp>, Graph<TypedFact, Box<dyn TypedOp>>>;
@@ -54,16 +80,9 @@ impl Yolo {
         collect
     }
 
-    pub fn scale(width: u32, height: u32, abox: [f32; 4]) -> Rect {
-        let width = width as f32;
-        let height = height as f32;
-        let x = abox[0];
-        let y = abox[1];
-        let w = abox[2] - abox[0];
-        let h = abox[3] - abox[1];
-
-        Rect::at((width * x) as i32, (height * y) as i32)
-            .of_size(((width * w).abs()) as u32, ((height * h).abs()) as u32)
+    pub fn scale(width: u32, height: u32, abox: &BBox) -> Rect {
+        let r = abox.scale_to_rect(width as i32, height as i32);
+        Rect::at(r.0, r.1).of_size(r.2, r.3)
     }
 }
 
@@ -90,7 +109,7 @@ impl ImageProcessor for Yolo {
         );
         let tensor: Tensor =
             tract_ndarray::Array4::from_shape_fn((1, 3, 416, 416), |(_, c, y, x)| {
-                resized[(x as _, y as _)][c] as f32 / 255.0
+                resized[(x as _, y as _)][c] as f32
             })
             .into();
         let result = self.model.run(tvec!(tensor)).unwrap();
@@ -98,45 +117,70 @@ impl ImageProcessor for Yolo {
             result[0].to_array_view::<f32>()?.into_dimensionality()?;
         let result = result.index_axis(Axis(0), 0);
 
-        let threshold = 25.0;
+        let threshold = 1.01;
         let white = Rgba([255u8, 255u8, 255u8, 255u8]);
         let mut img = DynamicImage::ImageRgba8(image.to_rgba8());
         let (width, height) = img.dimensions();
         let num_classes = 20;
+
+        let mut detections: Vec<Detection> = Vec::new();
+
         for (cy, iy) in result.axis_iter(Axis(1)).enumerate() {
             for (cx, ix) in iy.axis_iter(Axis(1)).enumerate() {
+                let d = ix;
                 for b in 0..4 {
                     let channel = b * (num_classes + 5);
-                    let tx = ix[channel + 0];
-                    let ty = ix[channel + 1];
-                    let tw = ix[channel + 2];
-                    let th = ix[channel + 3];
-                    let tc = ix[channel + 4];
+                    let tx = d[channel + 0];
+                    let ty = d[channel + 1];
+                    let tw = d[channel + 2];
+                    let th = d[channel + 3];
+                    let tc = d[channel + 4];
 
                     let x = (cx as f32 + sigmoid(&tx)) * 32.0 / 416.0;
                     let y = (cy as f32 + sigmoid(&ty)) * 32.0 / 416.0;
 
-                    let w = tw.exp();
-                    let h = th.exp();
+                    let w = tw.exp() * 32.0 / 416.0;
+                    let h = th.exp() * 32.0 / 416.0;
 
-                    // let tc = sigmoid(&tc);
+                    let tc = sigmoid(&tc);
                     let mut max_prob = (0, 0.0);
                     for c in 0..(num_classes - 1) {
-                        let v = ix[5 + c] * tc;
+                        let v = d[5 + c] * tc;
                         if v > max_prob.1 {
                             max_prob = (c, v);
                         }
                     }
-
                     if max_prob.1 > threshold {
-                        let label = Self::labels()[max_prob.0].to_string();
-                        println!("{}: {} {}x{} {}x{}", label, max_prob.1, x, y, w, h);
-                        let rect = Self::scale(width, height, [x, y, w, h]);
-                        draw_hollow_rect_mut(&mut img, rect, white);
+                        let bbox = BBox {
+                            x: x as f64,
+                            y: y as f64,
+                            w: w as f64,
+                            h: h as f64,
+                        };
+                        detections.push(Detection {
+                            class: max_prob.0,
+                            bbox,
+                            confidence: max_prob.1 * tc,
+                        });
                     }
                 }
             }
         }
+        let mut detections = nms_sort(detections);
+
+        let mut classes: Vec<usize> = Vec::new();
+        detections.iter_mut().for_each(|d| {
+            let class = d.class;
+            if !classes.contains(&class) {
+                let bbox = &mut d.bbox;
+                let label = Self::labels()[d.class].to_string();
+                // println!("{}: {} {:?}", label, d.confidence, bbox);
+                let rect = Self::scale(width, height, bbox);
+                draw_hollow_rect_mut(&mut img, rect, white);
+                classes.push(class);
+            }
+        });
+
         *image = Box::new(img);
         Ok(())
     }
