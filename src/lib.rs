@@ -27,6 +27,9 @@ fn sigmoid(a: &f32) -> f32 {
 }
 
 const SIZE: usize = 416;
+const TINY_YOLOV2_ANCHOR_PRIORS: [f32; 10] = [
+    1.08, 1.19, 3.42, 4.41, 6.63, 11.38, 9.42, 5.11, 16.62, 10.52,
+];
 
 type ModelType = SimplePlan<TypedFact, Box<dyn TypedOp>, Graph<TypedFact, Box<dyn TypedOp>>>;
 
@@ -110,8 +113,10 @@ impl Yolo {
                     let x = (cx as f32 + sigmoid(&tx)) * 32.0 / SIZE as f32;
                     let y = (cy as f32 + sigmoid(&ty)) * 32.0 / SIZE as f32;
 
-                    let w = tw.exp() * 32.0 / SIZE as f32;
-                    let h = th.exp() * 32.0 / SIZE as f32;
+                    let w =
+                        tw.exp() * (TINY_YOLOV2_ANCHOR_PRIORS[b * 2]) * 32.0 / SIZE as f32;
+                    let h = th.exp() * (TINY_YOLOV2_ANCHOR_PRIORS[b * 2 + 1]) * 32.0
+                        / SIZE as f32;
 
                     let tc = sigmoid(&tc);
                     let mut max_prob = (0, 0.0);
@@ -137,7 +142,6 @@ impl Yolo {
                 }
             }
         }
-        let detections = merge(detections);
         let detections = nms_sort(detections);
         Ok(detections)
     }
