@@ -1,5 +1,4 @@
 use exif::{Field, In, Tag, Value};
-use float_ord::FloatOrd;
 use image::{DynamicImage, GenericImageView, Rgba};
 use imageproc::drawing::{draw_hollow_rect_mut, draw_text_mut};
 use imageproc::rect::Rect;
@@ -14,6 +13,8 @@ use tract_onnx::prelude::*;
 
 mod bbox;
 use bbox::BBox;
+mod detection;
+use detection::{merge, nms_sort, Detection};
 
 extern "C" fn register(registrar: &mut dyn PluginRegistrar) {
     registrar.add_plugin(Box::new(Yolo::default()));
@@ -25,27 +26,7 @@ fn sigmoid(a: &f32) -> f32 {
     1.0 / (1.0 + (-a).exp())
 }
 
-const NMS_THRESH: f64 = 0.45;
-
-pub fn nms_sort(mut dets: Vec<Detection>) -> Vec<Detection> {
-    let mut ans = Vec::new();
-    while !dets.is_empty() {
-        dets.sort_by_key(|d| FloatOrd(d.confidence));
-        ans.push(dets.pop().unwrap());
-        dets = dets
-            .into_iter()
-            .filter(|d| d.bbox.iou(&ans.last().unwrap().bbox) < NMS_THRESH)
-            .collect();
-    }
-    ans
-}
-
-#[derive(Clone)]
-pub struct Detection {
-    pub bbox: BBox,
-    pub class: usize,
-    pub confidence: f32,
-}
+const SIZE: usize = 416;
 
 type ModelType = SimplePlan<TypedFact, Box<dyn TypedOp>, Graph<TypedFact, Box<dyn TypedOp>>>;
 
@@ -65,7 +46,7 @@ impl Yolo {
             .unwrap()
             .with_input_fact(
                 0,
-                InferenceFact::dt_shape(f32::datum_type(), tvec!(1, 3, 416, 416)),
+                InferenceFact::dt_shape(f32::datum_type(), tvec!(1, 3, SIZE, SIZE)),
             )
             .unwrap()
             .into_optimized()
@@ -101,7 +82,7 @@ impl Yolo {
             ::image::imageops::FilterType::Triangle,
         );
         let tensor: Tensor =
-            tract_ndarray::Array4::from_shape_fn((1, 3, 416, 416), |(_, c, y, x)| {
+            tract_ndarray::Array4::from_shape_fn((1, 3, SIZE, SIZE), |(_, c, y, x)| {
                 resized[(x as _, y as _)][c] as f32
             })
             .into();
@@ -110,7 +91,7 @@ impl Yolo {
             result[0].to_array_view::<f32>()?.into_dimensionality()?;
         let result = result.index_axis(Axis(0), 0);
 
-        let threshold = 1.01;
+        let threshold = 0.5;
         let num_classes = Self::classes().len();
 
         let mut detections: Vec<Detection> = Vec::new();
@@ -126,11 +107,11 @@ impl Yolo {
                     let th = d[channel + 3];
                     let tc = d[channel + 4];
 
-                    let x = (cx as f32 + sigmoid(&tx)) * 32.0 / 416.0;
-                    let y = (cy as f32 + sigmoid(&ty)) * 32.0 / 416.0;
+                    let x = (cx as f32 + sigmoid(&tx)) * 32.0 / SIZE as f32;
+                    let y = (cy as f32 + sigmoid(&ty)) * 32.0 / SIZE as f32;
 
-                    let w = tw.exp() * 32.0 / 416.0;
-                    let h = th.exp() * 32.0 / 416.0;
+                    let w = tw.exp() * 32.0 / SIZE as f32;
+                    let h = th.exp() * 32.0 / SIZE as f32;
 
                     let tc = sigmoid(&tc);
                     let mut max_prob = (0, 0.0);
@@ -156,6 +137,7 @@ impl Yolo {
                 }
             }
         }
+        let detections = merge(detections);
         let detections = nms_sort(detections);
         Ok(detections)
     }

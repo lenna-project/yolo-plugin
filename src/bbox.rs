@@ -1,5 +1,5 @@
 // source: https://github.com/12101111/yolo-rs/blob/master/src/yolo.rs
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct BBox {
     pub x: f64,
     pub y: f64,
@@ -20,7 +20,7 @@ impl BBox {
     pub fn bot(&self) -> f64 {
         self.y + self.h / 2.0
     }
-    fn overlay(&self, rhs: &BBox) -> f64 {
+    pub fn overlay(&self, rhs: &BBox) -> f64 {
         let left = self.left().max(rhs.left());
         let right = self.right().min(rhs.right());
         let w = (right - left).max(0.0);
@@ -29,7 +29,7 @@ impl BBox {
         let h = (bot - top).max(0.0);
         w * h
     }
-    fn union(&self, rhs: &BBox) -> f64 {
+    pub fn union(&self, rhs: &BBox) -> f64 {
         self.w * self.h + rhs.w * rhs.h - self.overlay(rhs)
     }
     pub fn iou(&self, rhs: &BBox) -> f64 {
