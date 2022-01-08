@@ -10,7 +10,7 @@
   },
   "config": {
     "shortname": "yolo-plugin",
-    "publicPath": "https://lenna.app/lenna-plugins/yolo-plugin/"
+    "publicPath": "https://lenna.app/yolo-plugin/"
   },
   "keywords": [],
   "author": "",
