@@ -542,31 +542,31 @@ __webpack_require__.d(exports, {
 /******/ 		var wasmImportedFuncCache4;
 /******/ 		var wasmImportedFuncCache5;
 /******/ 		var wasmImportObjects = {
-/******/ 			840: function() {
+/******/ 			716: function() {
 /******/ 				return {
-/******/ 					"./yolo_plugin_bg.js": {
+/******/ 					"./lenna_yolo_plugin_bg.js": {
 /******/ 						"__wbindgen_object_drop_ref": function(p0i32) {
-/******/ 							if(wasmImportedFuncCache0 === undefined) wasmImportedFuncCache0 = __webpack_require__.c[86].exports;
+/******/ 							if(wasmImportedFuncCache0 === undefined) wasmImportedFuncCache0 = __webpack_require__.c[131].exports;
 /******/ 							return wasmImportedFuncCache0["ug"](p0i32);
 /******/ 						},
 /******/ 						"__wbindgen_json_parse": function(p0i32,p1i32) {
-/******/ 							if(wasmImportedFuncCache1 === undefined) wasmImportedFuncCache1 = __webpack_require__.c[86].exports;
+/******/ 							if(wasmImportedFuncCache1 === undefined) wasmImportedFuncCache1 = __webpack_require__.c[131].exports;
 /******/ 							return wasmImportedFuncCache1["t$"](p0i32,p1i32);
 /******/ 						},
 /******/ 						"__wbindgen_json_serialize": function(p0i32,p1i32) {
-/******/ 							if(wasmImportedFuncCache2 === undefined) wasmImportedFuncCache2 = __webpack_require__.c[86].exports;
+/******/ 							if(wasmImportedFuncCache2 === undefined) wasmImportedFuncCache2 = __webpack_require__.c[131].exports;
 /******/ 							return wasmImportedFuncCache2["r1"](p0i32,p1i32);
 /******/ 						},
 /******/ 						"__wbg_new_693216e109162396": function() {
-/******/ 							if(wasmImportedFuncCache3 === undefined) wasmImportedFuncCache3 = __webpack_require__.c[86].exports;
+/******/ 							if(wasmImportedFuncCache3 === undefined) wasmImportedFuncCache3 = __webpack_require__.c[131].exports;
 /******/ 							return wasmImportedFuncCache3["Ih"]();
 /******/ 						},
 /******/ 						"__wbg_stack_0ddaca5d1abfb52f": function(p0i32,p1i32) {
-/******/ 							if(wasmImportedFuncCache4 === undefined) wasmImportedFuncCache4 = __webpack_require__.c[86].exports;
+/******/ 							if(wasmImportedFuncCache4 === undefined) wasmImportedFuncCache4 = __webpack_require__.c[131].exports;
 /******/ 							return wasmImportedFuncCache4["yq"](p0i32,p1i32);
 /******/ 						},
 /******/ 						"__wbg_error_09919627ac0992f5": function(p0i32,p1i32) {
-/******/ 							if(wasmImportedFuncCache5 === undefined) wasmImportedFuncCache5 = __webpack_require__.c[86].exports;
+/******/ 							if(wasmImportedFuncCache5 === undefined) wasmImportedFuncCache5 = __webpack_require__.c[131].exports;
 /******/ 							return wasmImportedFuncCache5["gk"](p0i32,p1i32);
 /******/ 						}
 /******/ 					}
@@ -575,8 +575,8 @@ __webpack_require__.d(exports, {
 /******/ 		};
 /******/ 		
 /******/ 		var wasmModuleMap = {
-/******/ 			"23": [
-/******/ 				840
+/******/ 			"17": [
+/******/ 				716
 /******/ 			]
 /******/ 		};
 /******/ 		
@@ -596,7 +596,7 @@ __webpack_require__.d(exports, {
 /******/ 					promises.push(installedWasmModuleData);
 /******/ 				else {
 /******/ 					var importObject = wasmImportObjects[wasmModuleId]();
-/******/ 					var req = fetch(__webpack_require__.p + "" + {"23":{"840":"0317ee83d7a620c4bf32"}}[chunkId][wasmModuleId] + ".module.wasm");
+/******/ 					var req = fetch(__webpack_require__.p + "" + {"17":{"716":"1fe626a7d97f3ae6cfd1"}}[chunkId][wasmModuleId] + ".module.wasm");
 /******/ 					var promise;
 /******/ 					if(importObject && typeof importObject.then === 'function' && typeof WebAssembly.compileStreaming === 'function') {
 /******/ 						promise = Promise.all([WebAssembly.compileStreaming(req), importObject]).then(function(items) {
