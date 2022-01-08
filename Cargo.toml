@@ -1,5 +1,5 @@
 [package]
-name = "yolo-plugin"
+name = "lenna_yolo_plugin"
 version = "0.1.0"
 authors = ["Christian M <chriamue@gmail.com>"]
 edition = "2021"
@@ -12,7 +12,14 @@ crate-type = ["cdylib", "rlib"]
 
 [features]
 default = ["plugin"]
-python = ["lenna_core/python", "ndarray", "ndarray-image", "numpy", "pyo3", "pythonize"]
+python = [
+    "lenna_core/python",
+    "ndarray",
+    "ndarray-image",
+    "numpy",
+    "pyo3",
+    "pythonize",
+]
 plugin = []
 
 [dependencies]
@@ -28,11 +35,11 @@ rusttype = "0.9"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 tract-onnx = { version = "0.15.9-pre", git = "https://github.com/chriamue/tract.git", branch = "patch-1" }
-pyo3 = { version = "0.14.1", features = ["extension-module"], optional = true }
+pyo3 = { version = "0.15", features = ["extension-module"], optional = true }
 ndarray = { version = "0.15.3", optional = true }
 ndarray-image = { git = "https://github.com/rust-cv/ndarray-image.git", optional = true }
-numpy = { version = "0.14.1", optional = true }
-pythonize = { version = "0.14.0", optional = true }
+numpy = { version = "0.15", optional = true }
+pythonize = { version = "0.15", optional = true }
 
 [target.wasm32-unknown-unknown.dependencies]
 console_error_panic_hook = "0.1"
