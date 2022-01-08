@@ -220,20 +220,21 @@ impl ImageProcessor for Yolo {
 impl ExifProcessor for Yolo {
     fn process_exif(&self, exif: &mut Box<Vec<Field>>) -> Result<(), Box<dyn std::error::Error>> {
         let classes: Vec<String> = self
-            .detections.clone()
+            .detections
+            .clone()
             .into_iter()
             .map(|d| Self::classes()[d.class].clone())
             .collect::<HashSet<_>>()
             .into_iter()
             .collect();
-
-        classes.into_iter().for_each(|class| {
+        if classes.len() > 0 {
+            let description = classes.join(" ");
             exif.push(Field {
                 tag: Tag::ImageDescription,
                 ifd_num: In::PRIMARY,
-                value: Value::Ascii(vec![class.clone().into_bytes()]),
-            })
-        });
+                value: Value::Ascii(vec![description.clone().into_bytes()]),
+            });
+        }
 
         Ok(())
     }
@@ -325,7 +326,7 @@ mod tests {
 
         let mut fields = Box::new(Vec::new());
         assert!(yolo.process_exif(&mut fields).is_ok());
-        assert_eq!(fields.len(), 4);
+        assert_eq!(fields.len(), 1);
     }
 
     #[cfg(target_arch = "wasm32")]
