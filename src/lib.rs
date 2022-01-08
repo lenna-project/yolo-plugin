@@ -290,4 +290,23 @@ mod tests {
         img.name = "person_out".to_string();
         lenna_core::io::write::write_to_file(&img, image::ImageOutputFormat::Jpeg(80)).unwrap();
     }
+
+    #[cfg(target_arch = "wasm32")]
+    mod wasm {
+        use super::*;
+        use lenna_core::LennaImage;
+        use wasm_bindgen_test::*;
+
+        #[wasm_bindgen_test]
+        fn default() {
+            let mut yolo = Yolo::default();
+            let config = ProcessorConfig {
+                id: "yolo".into(),
+                config: yolo.default_config(),
+            };
+            assert_eq!(yolo.name(), "yolo-plugin");
+            let mut img = Box::new(LennaImage::default());
+            yolo.process(config, &mut img).unwrap();
+        }
+    }
 }

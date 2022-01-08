@@ -1,0 +1,38 @@
+on: [push]
+
+name: CI
+
+jobs:
+  build_and_deploy:
+    name: Rust project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+      - uses: jetli/wasm-pack-action@v0.3.0
+        with:
+          version: 'latest'
+    
+      - run: rustup override set nightly
+
+      - run: wasm-pack build
+
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '16.x'
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build app
+        run: NODE_ENV=production npm run build --if-present
+
+      - name: Deploy Documentation
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./dist
+          keep_files: true
