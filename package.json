@@ -18,7 +18,7 @@
   "dependencies": {
     "@babel/core": "^7.15.0",
     "babel-loader": "^8.1.0",
-    "serve": "^11.3.2",
+    "serve": "^13.0.2",
     "vue": "^3.2.6"
   },
   "devDependencies": {
@@ -31,6 +31,6 @@
     "vue-loader": "^16.5.0",
     "webpack": "^5.51.1",
     "webpack-cli": "^4.8.0",
-    "webpack-dev-server": "^4.0.0"
+    "webpack-dev-server": "^4.7.2"
   }
 }

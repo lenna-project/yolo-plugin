@@ -1,3 +1,4 @@
+use exif::{Field, In, Tag, Value};
 use float_ord::FloatOrd;
 use image::{DynamicImage, GenericImageView, Rgba};
 use imageproc::drawing::{draw_hollow_rect_mut, draw_text_mut};
@@ -6,6 +7,7 @@ use lenna_core::plugins::PluginRegistrar;
 use lenna_core::ProcessorConfig;
 use lenna_core::{core::processor::ExifProcessor, core::processor::ImageProcessor, Processor};
 use rusttype::{Font, Scale};
+use std::collections::HashSet;
 use std::io::Cursor;
 use tract_ndarray::Axis;
 use tract_onnx::prelude::*;
@@ -51,6 +53,7 @@ type ModelType = SimplePlan<TypedFact, Box<dyn TypedOp>, Graph<TypedFact, Box<dy
 pub struct Yolo {
     config: Config,
     model: ModelType,
+    detections: Vec<Detection>,
 }
 
 impl Yolo {
@@ -72,7 +75,7 @@ impl Yolo {
         model
     }
 
-    pub fn labels() -> Vec<String> {
+    pub fn classes() -> Vec<String> {
         let collect = include_str!("../assets/voc.names")
             .to_string()
             .lines()
@@ -85,22 +88,11 @@ impl Yolo {
         let r = abox.scale_to_rect(width as i32, height as i32);
         Rect::at(r.0, r.1).of_size(r.2, r.3)
     }
-}
 
-impl Default for Yolo {
-    fn default() -> Self {
-        Yolo {
-            config: Config::default(),
-            model: Self::model(),
-        }
-    }
-}
-
-impl ImageProcessor for Yolo {
-    fn process_image(
+    pub fn detect_objects(
         &self,
-        image: &mut Box<DynamicImage>,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+        image: &Box<DynamicImage>,
+    ) -> Result<Vec<Detection>, Box<dyn std::error::Error>> {
         let image_rgb = image.to_rgb8();
         let resized = image::imageops::resize(
             &image_rgb,
@@ -119,10 +111,7 @@ impl ImageProcessor for Yolo {
         let result = result.index_axis(Axis(0), 0);
 
         let threshold = 1.01;
-        let white = Rgba([0u8, 255u8, 0u8, 255u8]);
-        let mut img = DynamicImage::ImageRgba8(image.to_rgba8());
-        let (width, height) = img.dimensions();
-        let num_classes = 20;
+        let num_classes = Self::classes().len();
 
         let mut detections: Vec<Detection> = Vec::new();
 
@@ -167,7 +156,30 @@ impl ImageProcessor for Yolo {
                 }
             }
         }
-        let mut detections = nms_sort(detections);
+        let detections = nms_sort(detections);
+        Ok(detections)
+    }
+}
+
+impl Default for Yolo {
+    fn default() -> Self {
+        Yolo {
+            config: Config::default(),
+            model: Self::model(),
+            detections: Vec::new(),
+        }
+    }
+}
+
+impl ImageProcessor for Yolo {
+    fn process_image(
+        &self,
+        image: &mut Box<DynamicImage>,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let white = Rgba([0u8, 255u8, 0u8, 255u8]);
+        let mut img = DynamicImage::ImageRgba8(image.to_rgba8());
+        let (width, height) = img.dimensions();
+        let mut detections = self.detections.to_vec();
 
         let font = Vec::from(include_bytes!("../assets/DejaVuSans.ttf") as &[u8]);
         let font = Font::try_from_vec(font).unwrap();
@@ -183,7 +195,7 @@ impl ImageProcessor for Yolo {
             let class = d.class;
             if !classes.contains(&class) {
                 let bbox = &mut d.bbox;
-                let label = Self::labels()[d.class].to_string();
+                let label = Self::classes()[d.class].to_string();
                 let rect = Self::scale(width, height, bbox);
                 draw_hollow_rect_mut(&mut img, rect, white);
 
@@ -205,7 +217,27 @@ impl ImageProcessor for Yolo {
     }
 }
 
-impl ExifProcessor for Yolo {}
+impl ExifProcessor for Yolo {
+    fn process_exif(&self, exif: &mut Box<Vec<Field>>) -> Result<(), Box<dyn std::error::Error>> {
+        let classes: Vec<String> = self
+            .detections.clone()
+            .into_iter()
+            .map(|d| Self::classes()[d.class].clone())
+            .collect::<HashSet<_>>()
+            .into_iter()
+            .collect();
+
+        classes.into_iter().for_each(|class| {
+            exif.push(Field {
+                tag: Tag::ImageDescription,
+                ifd_num: In::PRIMARY,
+                value: Value::Ascii(vec![class.clone().into_bytes()]),
+            })
+        });
+
+        Ok(())
+    }
+}
 
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 struct Config {}
@@ -239,6 +271,7 @@ impl Processor for Yolo {
         image: &mut Box<lenna_core::LennaImage>,
     ) -> Result<(), Box<dyn std::error::Error>> {
         self.config = serde_json::from_value(config.config).unwrap();
+        self.detections = self.detect_objects(&image.image).unwrap();
         self.process_exif(&mut image.exif).unwrap();
         self.process_image(&mut image.image).unwrap();
         Ok(())
@@ -289,6 +322,10 @@ mod tests {
         yolo.process(config, &mut img).unwrap();
         img.name = "person_out".to_string();
         lenna_core::io::write::write_to_file(&img, image::ImageOutputFormat::Jpeg(80)).unwrap();
+
+        let mut fields = Box::new(Vec::new());
+        assert!(yolo.process_exif(&mut fields).is_ok());
+        assert_eq!(fields.len(), 4);
     }
 
     #[cfg(target_arch = "wasm32")]
