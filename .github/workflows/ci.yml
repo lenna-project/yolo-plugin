@@ -29,6 +29,9 @@ jobs:
       - name: Build app
         run: NODE_ENV=production npm run build --if-present
 
+      - name: copy index.html
+        run: cp index.html ./dist
+
       - name: Deploy Documentation
         uses: peaceiris/actions-gh-pages@v3
         with:
