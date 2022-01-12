@@ -2,7 +2,7 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 514:
+/***/ 853:
 /***/ ((module, __unused_webpack___webpack_exports__, __webpack_require__) => {
 
 /* harmony import */ var _node_modules_css_loader_dist_runtime_cssWithMappingToString_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
@@ -14,7 +14,7 @@
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_cssWithMappingToString_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n.plugin-config[data-v-65e1ac4e] {\n  margin: 5px;\n  min-width: 100px;\n  min-height: 50px;\n}\n", "",{"version":3,"sources":["webpack://./src/Widget.vue"],"names":[],"mappings":";AA2BA;EACE,WAAW;EACX,gBAAgB;EAChB,gBAAgB;AAClB","sourcesContent":["<template>\n  <div class=\"plugin-config\"></div>\n</template>\n\n<script>\nimport { defineComponent } from \"vue\";\nexport default defineComponent({\n  name: \"Widget\",\n  props: {\n    defaultConfig: Object,\n  },\n  data() {\n    return {};\n  },\n  methods: {\n    async updateConfig() {\n      let config = {};\n      this.$emit(\"changeConfig\", config);\n    },\n  },\n  created() {\n    this.updateConfig();\n  },\n});\n</script>\n\n<style scoped lang=\"css\">\n.plugin-config {\n  margin: 5px;\n  min-width: 100px;\n  min-height: 50px;\n}\n</style>\n"],"sourceRoot":""}]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n.plugin-config[data-v-7949c1db] {\n  margin: 5px;\n  min-width: 100px;\n  min-height: 50px;\n}\n", "",{"version":3,"sources":["webpack://./src/Widget.vue"],"names":[],"mappings":";AA0CA;EACE,WAAW;EACX,gBAAgB;EAChB,gBAAgB;AAClB","sourcesContent":["<template>\n  <div class=\"plugin-config\">\n    <div>\n      <input\n        type=\"checkbox\"\n        id=\"crop\"\n        v-model=\"crop\"\n        v-on:change=\"updateConfig()\"\n      />\n      <label for=\"crop\">Crop first detection</label>\n    </div>\n  </div>\n</template>\n\n<script>\nimport { defineComponent } from \"vue\";\nexport default defineComponent({\n  name: \"Widget\",\n  props: {\n    defaultConfig: Object,\n  },\n  data() {\n    return {\n      crop: false,\n    };\n  },\n  methods: {\n    async updateConfig() {\n      let config = {\n        crop: this.crop,\n      };\n      this.$emit(\"changeConfig\", config);\n    },\n  },\n  created() {\n    this.crop = this.defaultConfig.crop;\n    this.updateConfig();\n  },\n});\n</script>\n\n<style scoped lang=\"css\">\n.plugin-config {\n  margin: 5px;\n  min-width: 100px;\n  min-height: 50px;\n}\n</style>\n"],"sourceRoot":""}]);
 // Exports
 /* unused harmony default export */ var __WEBPACK_DEFAULT_EXPORT__ = ((/* unused pure expression or super */ null && (___CSS_LOADER_EXPORT___)));
 
@@ -154,7 +154,7 @@ exports.Z = (sfc, props) => {
 
 /***/ }),
 
-/***/ 857:
+/***/ 276:
 /***/ ((__unused_webpack_module, __unused_webpack___webpack_exports__, __webpack_require__) => {
 
 
@@ -162,16 +162,29 @@ exports.Z = (sfc, props) => {
 
 // EXTERNAL MODULE: consume shared module (default) vue@^3.2.6 (strict) (fallback: ./node_modules/@vue/runtime-dom/dist/runtime-dom.esm-bundler.js)
 var runtime_dom_esm_bundler_js_ = __webpack_require__(855);
-;// CONCATENATED MODULE: ./node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[1]!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/Widget.vue?vue&type=template&id=65e1ac4e&scoped=true
+;// CONCATENATED MODULE: ./node_modules/vue-loader/dist/templateLoader.js??ruleSet[1].rules[1]!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/Widget.vue?vue&type=template&id=7949c1db&scoped=true
 
 
-const _withScopeId = n => (_pushScopeId("data-v-65e1ac4e"),n=n(),_popScopeId(),n)
+const _withScopeId = n => ((0,runtime_dom_esm_bundler_js_.pushScopeId)("data-v-7949c1db"),n=n(),(0,runtime_dom_esm_bundler_js_.popScopeId)(),n)
 const _hoisted_1 = { class: "plugin-config" }
+const _hoisted_2 = /*#__PURE__*/ _withScopeId(() => /*#__PURE__*/(0,runtime_dom_esm_bundler_js_.createElementVNode)("label", { for: "crop" }, "Crop first detection", -1))
 
 function render(_ctx, _cache, $props, $setup, $data, $options) {
-  return ((0,runtime_dom_esm_bundler_js_.openBlock)(), (0,runtime_dom_esm_bundler_js_.createElementBlock)("div", _hoisted_1))
+  return ((0,runtime_dom_esm_bundler_js_.openBlock)(), (0,runtime_dom_esm_bundler_js_.createElementBlock)("div", _hoisted_1, [
+    (0,runtime_dom_esm_bundler_js_.createElementVNode)("div", null, [
+      (0,runtime_dom_esm_bundler_js_.withDirectives)((0,runtime_dom_esm_bundler_js_.createElementVNode)("input", {
+        type: "checkbox",
+        id: "crop",
+        "onUpdate:modelValue": _cache[0] || (_cache[0] = $event => ((_ctx.crop) = $event)),
+        onChange: _cache[1] || (_cache[1] = $event => (_ctx.updateConfig()))
+      }, null, 544), [
+        [runtime_dom_esm_bundler_js_.vModelCheckbox, _ctx.crop]
+      ]),
+      _hoisted_2
+    ])
+  ]))
 }
-;// CONCATENATED MODULE: ./src/Widget.vue?vue&type=template&id=65e1ac4e&scoped=true
+;// CONCATENATED MODULE: ./src/Widget.vue?vue&type=template&id=7949c1db&scoped=true
 
 ;// CONCATENATED MODULE: ./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/Widget.vue?vue&type=script&lang=js
 
@@ -182,24 +195,29 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     defaultConfig: Object,
   },
   data() {
-    return {};
+    return {
+      crop: false,
+    };
   },
   methods: {
     async updateConfig() {
-      let config = {};
+      let config = {
+        crop: this.crop,
+      };
       this.$emit("changeConfig", config);
     },
   },
   created() {
+    this.crop = this.defaultConfig.crop;
     this.updateConfig();
   },
 }));
 
 ;// CONCATENATED MODULE: ./src/Widget.vue?vue&type=script&lang=js
  
-// EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/Widget.vue?vue&type=style&index=0&id=65e1ac4e&scoped=true&lang=css
-var Widgetvue_type_style_index_0_id_65e1ac4e_scoped_true_lang_css = __webpack_require__(514);
-;// CONCATENATED MODULE: ./src/Widget.vue?vue&type=style&index=0&id=65e1ac4e&scoped=true&lang=css
+// EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/Widget.vue?vue&type=style&index=0&id=7949c1db&scoped=true&lang=css
+var Widgetvue_type_style_index_0_id_7949c1db_scoped_true_lang_css = __webpack_require__(853);
+;// CONCATENATED MODULE: ./src/Widget.vue?vue&type=style&index=0&id=7949c1db&scoped=true&lang=css
 
 // EXTERNAL MODULE: ./node_modules/vue-loader/dist/exportHelper.js
 var exportHelper = __webpack_require__(744);
@@ -211,7 +229,7 @@ var exportHelper = __webpack_require__(744);
 ;
 
 
-const __exports__ = /*#__PURE__*/(0,exportHelper/* default */.Z)(Widgetvue_type_script_lang_js, [['render',render],['__scopeId',"data-v-65e1ac4e"]])
+const __exports__ = /*#__PURE__*/(0,exportHelper/* default */.Z)(Widgetvue_type_script_lang_js, [['render',render],['__scopeId',"data-v-7949c1db"]])
 
 /* harmony default export */ const Widget = ((/* unused pure expression or super */ null && (__exports__)));
 
@@ -221,7 +239,7 @@ const __exports__ = /*#__PURE__*/(0,exportHelper/* default */.Z)(Widgetvue_type_
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 /* unused harmony exports ui, processor, name, description, process, defaultConfig */
-/* harmony import */ var _Widget__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(857);
+/* harmony import */ var _Widget__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(276);
 const pkg = __webpack_require__.e(/* import() */ 17).then(__webpack_require__.bind(__webpack_require__, 17));
 
 const ui = (/* unused pure expression or super */ null && (Widget));
@@ -232,7 +250,9 @@ const process = async (config, image) => {
   return __webpack_require__.e(/* import() */ 17).then(__webpack_require__.bind(__webpack_require__, 17)).then((processor) => processor.process(config, image));
 };
 const defaultConfig = async () => {
-  return {};
+  return {
+    crop: false,
+  };
 };
 
 
@@ -650,7 +670,7 @@ const defaultConfig = async () => {
 /******/ 		var installedChunks = {
 /******/ 			179: 0,
 /******/ 			138: 0,
-/******/ 			857: 0,
+/******/ 			276: 0,
 /******/ 			855: 0
 /******/ 		};
 /******/ 		
@@ -801,7 +821,7 @@ const defaultConfig = async () => {
 /******/ 					promises.push(installedWasmModuleData);
 /******/ 				else {
 /******/ 					var importObject = wasmImportObjects[wasmModuleId]();
-/******/ 					var req = fetch(__webpack_require__.p + "" + {"17":{"716":"e054bcd86c5759773215"}}[chunkId][wasmModuleId] + ".module.wasm");
+/******/ 					var req = fetch(__webpack_require__.p + "" + {"17":{"716":"05992fec8add531c96fe"}}[chunkId][wasmModuleId] + ".module.wasm");
 /******/ 					var promise;
 /******/ 					if(importObject && typeof importObject.then === 'function' && typeof WebAssembly.compileStreaming === 'function') {
 /******/ 						promise = Promise.all([WebAssembly.compileStreaming(req), importObject]).then(function(items) {
