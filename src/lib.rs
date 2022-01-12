@@ -1,5 +1,5 @@
 use exif::{Field, In, Tag, Value};
-use image::{DynamicImage, GenericImageView, Rgba};
+use image::{imageops::crop, DynamicImage, GenericImageView, Rgba};
 use imageproc::drawing::{draw_hollow_rect_mut, draw_text_mut};
 use imageproc::rect::Rect;
 use lenna_core::plugins::PluginRegistrar;
@@ -160,42 +160,59 @@ impl ImageProcessor for Yolo {
         &self,
         image: &mut Box<DynamicImage>,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        let white = Rgba([0u8, 255u8, 0u8, 255u8]);
         let mut img = DynamicImage::ImageRgba8(image.to_rgba8());
         let (width, height) = img.dimensions();
         let mut detections = self.detections.to_vec();
+        match self.config.crop {
+            Some(true) => match detections.get(0) {
+                Some(&detection) => {
+                    let bbox = Yolo::scale(width, height, &detection.bbox);
+                    let cropped = crop(
+                        &mut img,
+                        bbox.left() as u32,
+                        bbox.top() as u32,
+                        bbox.width() as u32,
+                        bbox.height() as u32,
+                    );
+                    img = DynamicImage::ImageRgba8(cropped.to_image());
+                }
+                _ => {}
+            },
+            _ => {
+                let white = Rgba([0u8, 255u8, 0u8, 255u8]);
 
-        let font = Vec::from(include_bytes!("../assets/DejaVuSans.ttf") as &[u8]);
-        let font = Font::try_from_vec(font).unwrap();
+                let font = Vec::from(include_bytes!("../assets/DejaVuSans.ttf") as &[u8]);
+                let font = Font::try_from_vec(font).unwrap();
 
-        let font_height = 15.0;
-        let scale = Scale {
-            x: font_height * 2.0,
-            y: font_height,
-        };
+                let font_height = 15.0;
+                let scale = Scale {
+                    x: font_height * 2.0,
+                    y: font_height,
+                };
 
-        let mut classes: Vec<usize> = Vec::new();
-        detections.iter_mut().for_each(|d| {
-            let class = d.class;
-            if !classes.contains(&class) {
-                let bbox = &mut d.bbox;
-                let label = Self::classes()[d.class].to_string();
-                let rect = Self::scale(width, height, bbox);
-                draw_hollow_rect_mut(&mut img, rect, white);
+                let mut classes: Vec<usize> = Vec::new();
+                detections.iter_mut().for_each(|d| {
+                    let class = d.class;
+                    if !classes.contains(&class) {
+                        let bbox = &mut d.bbox;
+                        let label = Self::classes()[d.class].to_string();
+                        let rect = Self::scale(width, height, bbox);
+                        draw_hollow_rect_mut(&mut img, rect, white);
 
-                draw_text_mut(
-                    &mut img,
-                    Rgba([0u8, 200u8, 0u8, 255u8]),
-                    rect.left() as u32,
-                    rect.top() as u32,
-                    scale,
-                    &font,
-                    &label,
-                );
-                classes.push(class);
+                        draw_text_mut(
+                            &mut img,
+                            Rgba([0u8, 200u8, 0u8, 255u8]),
+                            rect.left() as u32,
+                            rect.top() as u32,
+                            scale,
+                            &font,
+                            &label,
+                        );
+                        classes.push(class);
+                    }
+                });
             }
-        });
-
+        }
         *image = Box::new(img);
         Ok(())
     }
@@ -225,11 +242,13 @@ impl ExifProcessor for Yolo {
 }
 
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
-struct Config {}
+struct Config {
+    pub crop: Option<bool>,
+}
 
 impl Default for Config {
     fn default() -> Self {
-        Config {}
+        Config { crop: None }
     }
 }
 
@@ -289,7 +308,8 @@ mod tests {
     #[test]
     fn default() {
         let mut yolo = Yolo::default();
-        let c = yolo.default_config();
+        let mut c = yolo.default_config();
+        c["crop"] = serde_json::Value::Bool(true);
 
         let config = ProcessorConfig {
             id: "yolo-plugin".into(),
@@ -302,6 +322,12 @@ mod tests {
         img.name = "dog_out".to_string();
         lenna_core::io::write::write_to_file(&img, image::ImageOutputFormat::Jpeg(80)).unwrap();
 
+        let c = yolo.default_config();
+
+        let config = ProcessorConfig {
+            id: "yolo-plugin".into(),
+            config: c,
+        };
         let mut img =
             Box::new(lenna_core::io::read::read_from_file("assets/person.jpg".into()).unwrap());
         yolo.process(config, &mut img).unwrap();

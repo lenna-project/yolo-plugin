@@ -1,5 +1,15 @@
 <template>
-  <div class="plugin-config"></div>
+  <div class="plugin-config">
+    <div>
+      <input
+        type="checkbox"
+        id="crop"
+        v-model="crop"
+        v-on:change="updateConfig()"
+      />
+      <label for="crop">Crop first detection</label>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -10,15 +20,20 @@ export default defineComponent({
     defaultConfig: Object,
   },
   data() {
-    return {};
+    return {
+      crop: false,
+    };
   },
   methods: {
     async updateConfig() {
-      let config = {};
+      let config = {
+        crop: this.crop,
+      };
       this.$emit("changeConfig", config);
     },
   },
   created() {
+    this.crop = this.defaultConfig.crop;
     this.updateConfig();
   },
 });
