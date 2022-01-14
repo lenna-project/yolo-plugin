@@ -20,6 +20,7 @@ extern "C" fn register(registrar: &mut dyn PluginRegistrar) {
     registrar.add_plugin(Box::new(Yolo::default()));
 }
 
+#[cfg(feature = "plugin")]
 lenna_core::export_plugin!(register);
 
 fn sigmoid(a: &f32) -> f32 {
