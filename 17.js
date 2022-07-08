@@ -70,12 +70,12 @@ let cachedTextDecoder = new lTextDecoder('utf-8', { ignoreBOM: true, fatal: true
 
 cachedTextDecoder.decode();
 
-let cachegetUint8Memory0 = null;
+let cachedUint8Memory0;
 function getUint8Memory0() {
-    if (cachegetUint8Memory0 === null || cachegetUint8Memory0.buffer !== _lenna_yolo_plugin_bg_wasm__WEBPACK_IMPORTED_MODULE_0__.memory.buffer) {
-        cachegetUint8Memory0 = new Uint8Array(_lenna_yolo_plugin_bg_wasm__WEBPACK_IMPORTED_MODULE_0__.memory.buffer);
+    if (cachedUint8Memory0.byteLength === 0) {
+        cachedUint8Memory0 = new Uint8Array(_lenna_yolo_plugin_bg_wasm__WEBPACK_IMPORTED_MODULE_0__.memory.buffer);
     }
-    return cachegetUint8Memory0;
+    return cachedUint8Memory0;
 }
 
 function getStringFromWasm0(ptr, len) {
@@ -148,18 +148,18 @@ function passStringToWasm0(arg, malloc, realloc) {
     return ptr;
 }
 
-let cachegetInt32Memory0 = null;
+let cachedInt32Memory0;
 function getInt32Memory0() {
-    if (cachegetInt32Memory0 === null || cachegetInt32Memory0.buffer !== _lenna_yolo_plugin_bg_wasm__WEBPACK_IMPORTED_MODULE_0__.memory.buffer) {
-        cachegetInt32Memory0 = new Int32Array(_lenna_yolo_plugin_bg_wasm__WEBPACK_IMPORTED_MODULE_0__.memory.buffer);
+    if (cachedInt32Memory0.byteLength === 0) {
+        cachedInt32Memory0 = new Int32Array(_lenna_yolo_plugin_bg_wasm__WEBPACK_IMPORTED_MODULE_0__.memory.buffer);
     }
-    return cachegetInt32Memory0;
+    return cachedInt32Memory0;
 }
 /**
 * @returns {any}
 */
 function defaultConfig() {
-    var ret = _lenna_yolo_plugin_bg_wasm__WEBPACK_IMPORTED_MODULE_0__.defaultConfig();
+    const ret = _lenna_yolo_plugin_bg_wasm__WEBPACK_IMPORTED_MODULE_0__.defaultConfig();
     return takeObject(ret);
 }
 
@@ -229,8 +229,8 @@ function getArrayU8FromWasm0(ptr, len) {
 function process(config, data) {
     try {
         const retptr = _lenna_yolo_plugin_bg_wasm__WEBPACK_IMPORTED_MODULE_0__.__wbindgen_add_to_stack_pointer(-16);
-        var ptr0 = passArray8ToWasm0(data, _lenna_yolo_plugin_bg_wasm__WEBPACK_IMPORTED_MODULE_0__.__wbindgen_malloc);
-        var len0 = WASM_VECTOR_LEN;
+        const ptr0 = passArray8ToWasm0(data, _lenna_yolo_plugin_bg_wasm__WEBPACK_IMPORTED_MODULE_0__.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
         _lenna_yolo_plugin_bg_wasm__WEBPACK_IMPORTED_MODULE_0__.process(retptr, addHeapObject(config), ptr0, len0);
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
@@ -247,28 +247,28 @@ function __wbindgen_object_drop_ref(arg0) {
 };
 
 function __wbindgen_json_parse(arg0, arg1) {
-    var ret = JSON.parse(getStringFromWasm0(arg0, arg1));
+    const ret = JSON.parse(getStringFromWasm0(arg0, arg1));
     return addHeapObject(ret);
 };
 
 function __wbindgen_json_serialize(arg0, arg1) {
     const obj = getObject(arg1);
-    var ret = JSON.stringify(obj === undefined ? null : obj);
-    var ptr0 = passStringToWasm0(ret, _lenna_yolo_plugin_bg_wasm__WEBPACK_IMPORTED_MODULE_0__.__wbindgen_malloc, _lenna_yolo_plugin_bg_wasm__WEBPACK_IMPORTED_MODULE_0__.__wbindgen_realloc);
-    var len0 = WASM_VECTOR_LEN;
+    const ret = JSON.stringify(obj === undefined ? null : obj);
+    const ptr0 = passStringToWasm0(ret, _lenna_yolo_plugin_bg_wasm__WEBPACK_IMPORTED_MODULE_0__.__wbindgen_malloc, _lenna_yolo_plugin_bg_wasm__WEBPACK_IMPORTED_MODULE_0__.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
     getInt32Memory0()[arg0 / 4 + 1] = len0;
     getInt32Memory0()[arg0 / 4 + 0] = ptr0;
 };
 
 function __wbg_new_693216e109162396() {
-    var ret = new Error();
+    const ret = new Error();
     return addHeapObject(ret);
 };
 
 function __wbg_stack_0ddaca5d1abfb52f(arg0, arg1) {
-    var ret = getObject(arg1).stack;
-    var ptr0 = passStringToWasm0(ret, _lenna_yolo_plugin_bg_wasm__WEBPACK_IMPORTED_MODULE_0__.__wbindgen_malloc, _lenna_yolo_plugin_bg_wasm__WEBPACK_IMPORTED_MODULE_0__.__wbindgen_realloc);
-    var len0 = WASM_VECTOR_LEN;
+    const ret = getObject(arg1).stack;
+    const ptr0 = passStringToWasm0(ret, _lenna_yolo_plugin_bg_wasm__WEBPACK_IMPORTED_MODULE_0__.__wbindgen_malloc, _lenna_yolo_plugin_bg_wasm__WEBPACK_IMPORTED_MODULE_0__.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
     getInt32Memory0()[arg0 / 4 + 1] = len0;
     getInt32Memory0()[arg0 / 4 + 0] = ptr0;
 };
@@ -280,6 +280,9 @@ function __wbg_error_09919627ac0992f5(arg0, arg1) {
         _lenna_yolo_plugin_bg_wasm__WEBPACK_IMPORTED_MODULE_0__.__wbindgen_free(arg0, arg1);
     }
 };
+
+cachedInt32Memory0 = new Int32Array(_lenna_yolo_plugin_bg_wasm__WEBPACK_IMPORTED_MODULE_0__.memory.buffer);
+cachedUint8Memory0 = new Uint8Array(_lenna_yolo_plugin_bg_wasm__WEBPACK_IMPORTED_MODULE_0__.memory.buffer);
 
 
 
