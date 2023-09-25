@@ -24,29 +24,29 @@ plugin = []
 
 [dependencies]
 float-ord = "0.3.2"
-image = { version = "0.23", default-features = false, features = [
+image = { version = "0.24.7", default-features = false, features = [
     "png",
     "jpeg",
 ] }
-imageproc = { version = "0.22", default-features = false }
+imageproc = { version = "0.23", default-features = false }
 kamadak-exif = "0.5"
 lenna_core = { git = "https://github.com/lenna-project/lenna-core", branch = "main" }
 rusttype = "0.9"
+pyo3 = { version = "0.16", features = ["extension-module"], optional = true }
+ndarray = { version = "0.15.6", optional = true }
+ndarray-image = { git = "https://github.com/rust-cv/ndarray-image.git", optional = true }
+numpy = { version = "0.16", optional = true }
+pythonize = { version = "0.16", optional = true }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 tract-onnx = { version = "0.17" }
-pyo3 = { version = "0.15", features = ["extension-module"], optional = true }
-ndarray = { version = "0.15.3", optional = true }
-ndarray-image = { git = "https://github.com/rust-cv/ndarray-image.git", optional = true }
-numpy = { version = "0.15", optional = true }
-pythonize = { version = "0.15", optional = true }
 
 [target.wasm32-unknown-unknown.dependencies]
 console_error_panic_hook = "0.1"
 wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
 
 [dev-dependencies]
-wasm-bindgen-test = "0.3.0"
+wasm-bindgen-test = "0.3.37"
 
 [profile.release]
 opt-level = "s"

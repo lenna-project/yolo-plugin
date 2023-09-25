@@ -203,8 +203,8 @@ impl ImageProcessor for Yolo {
                         draw_text_mut(
                             &mut img,
                             Rgba([0u8, 200u8, 0u8, 255u8]),
-                            rect.left() as u32,
-                            rect.top() as u32,
+                            rect.left(),
+                            rect.top(),
                             scale,
                             &font,
                             &label,
