@@ -78,12 +78,39 @@ pip install jupyter
 jupyter notebook example.ipynb
 ```
 
+## performance
+
+The yolo model runs build with tract:
+
+```bash
+time cargo test default --release --no-default-features --features=yolo
+
+real    0m0,499s
+user    0m0,379s
+sys     0m0,123s
+```
+
+![Yolov8 Model Person Output](assets/person_out_yolo_model.jpg)
+
+The yolov8 model runs build with candle:
+
+```bash
+time cargo test default --release --no-default-features --features=yolo
+
+real    0m0,660s
+user    0m1,346s
+sys     0m0,099s
+```
+
+![Yolov8 Model Person Output](assets/person_out_yolov8_model.jpg)
 
 ## Sources:
 
 The model is from [tiny-yolov2 on onnx](https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/tiny-yolov2).
 
 The class names are from [voc names on darknet](https://github.com/pjreddie/darknet/blob/master/data/voc.names).
+
+The yolov8 model is from [Candle Yolo Example](https://github.com/huggingface/candle/tree/main/candle-wasm-examples/yolo) licensed under [MIT](https://github.com/huggingface/candle/blob/main/LICENSE-MIT).
 
 ### Paper
 
