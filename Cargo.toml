@@ -25,8 +25,8 @@ yolo = ["tract-onnx"]
 yolov8 = ["candle-core", "candle-nn"]
 
 [dependencies]
-candle-core = { git = "https://github.com/huggingface/candle", optional = true }
-candle-nn = { git = "https://github.com/huggingface/candle", optional = true }
+candle-core = { version = "0.3.2", optional = true }
+candle-nn = { version = "0.3.2", optional = true }
 float-ord = "0.3.2"
 image = { version = "0.24.7", default-features = false, features = [
     "png",
@@ -43,7 +43,7 @@ numpy = { version = "0.16", optional = true }
 pythonize = { version = "0.16", optional = true }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-tract-onnx = { version = "0.20", optional = true }
+tract-onnx = { version = "~0.20.7", optional = true }
 
 [target.wasm32-unknown-unknown.dependencies]
 console_error_panic_hook = "0.1"
@@ -51,7 +51,7 @@ wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
 getrandom = { version = "0.2", features = ["js"] }
 
 [dev-dependencies]
-wasm-bindgen-test = "0.3.37"
+wasm-bindgen-test = "0.3.39"
 
 [profile.release]
 opt-level = "s"
